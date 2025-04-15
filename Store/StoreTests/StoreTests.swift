@@ -66,4 +66,50 @@ TOTAL: $7.97
 """
         XCTAssertEqual(expectedReceipt, receipt.output())
     }
+
+    // newly written tests
+    func testSubtotalOfOneItem() {
+        register.scan(Item(name: "200 Page Notebook", priceEach: 200))
+        XCTAssertEqual(200, register.subtotal())
+    }
+    
+    func testTwoForOneBeans() {
+        register.clear()
+        register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
+        register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
+        var receipt = register.getReceipt()
+        var expectedReceipt = """
+Receipt:
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+------------------
+TOTAL: $3.98
+"""
+        XCTAssertEqual(expectedReceipt, receipt.output())
+        XCTAssertEqual(398, register.subtotal())
+        
+        register.scan(Item(name: "Beans (8oz Can)", priceEach: 199))
+        
+        receipt = register.total()
+        expectedReceipt = """
+Receipt:
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+Beans (8oz Can): $1.99
+------------------
+DISCOUNT: -$2.99
+------------------
+TOTAL: $2.98
+"""
+        XCTAssertEqual(expectedReceipt, receipt.output())
+        XCTAssertEqual(298, receipt.total())
+    }
+    
+    func testGroupDiscountForKetchupAndBeer() {
+        register.clear()
+        register.scan(Item(name: "Ketchup (20oz Bottle)", priceEach: 230))
+        register.scan(Item(name: "Beer (12oz Bottle)", priceEach: 157))  // total 387
+
+        XCTAssertEqual(349, register.subtotal())
+    }
 }
